@@ -21,7 +21,7 @@ public class PhotoController {
     @PostMapping("/{memberId}/photo")
     public ResponseEntity<String> profilePhotoUploadAndUpdate(
             // memberId 값 가져오기
-            @PathVariable Long memberId,
+            @PathVariable String memberId,
             @Valid @RequestPart("profile_photo") MultipartFile multipartFile) {
         final String profilePhotoUrl = s3Service.uploadPhoto(memberId, multipartFile);
 
@@ -30,7 +30,7 @@ public class PhotoController {
 
     @PostMapping("/{memberId}/photos")
     public ResponseEntity<List<String>> profilePhotosUploadAndUpdate(
-            @PathVariable Long memberId,
+            @PathVariable String memberId,
             @RequestPart("profile_photos") List<MultipartFile> files) {
         List<String> profilePhotoUrls = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
@@ -45,7 +45,7 @@ public class PhotoController {
     @GetMapping("/{memberId}/{storedFileName}/xlsx_download")
     public String xlsx_download(
             @PathVariable String storedFileName,
-            @PathVariable Long memberId
+            @PathVariable String memberId
     ) throws IOException {
 
         return s3Service.getPresignedUrl(memberId, storedFileName);
@@ -55,7 +55,7 @@ public class PhotoController {
     @GetMapping("/{memberId}/{storedFileName}/image_download")
     public ResponseEntity<byte[]> photoDownload(
             @PathVariable String storedFileName,
-            @PathVariable Long memberId
+            @PathVariable String memberId
     ) throws IOException {
 
         return s3Service.getObject(memberId, storedFileName);
@@ -70,7 +70,7 @@ public class PhotoController {
 
     // 특정 멤버의 파일 목록 반환
     @GetMapping("/{memberId}/list")
-    public ResponseEntity<List<String>> listFiles(@PathVariable Long memberId) {
+    public ResponseEntity<List<String>> listFiles(@PathVariable String memberId) {
         List<String> files = s3Service.listFiles(memberId);
         return ResponseEntity.ok().body(files);
     }

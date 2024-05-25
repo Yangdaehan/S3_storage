@@ -30,11 +30,11 @@ public class AmazonS3Service {
         this.amazonS3Client = amazonS3Client;
     }
 
-    public String uploadPhoto(Long memberId, MultipartFile multipartFile) {
+    public String uploadPhoto(String  memberId, MultipartFile multipartFile) {
         final String originalFilename = multipartFile.getOriginalFilename();
 
         //멤버별 디렉토리 생성
-        final String directory = memberId.toString() + "/";
+        final String directory = memberId + "/";
         final String s3Filename = directory + originalFilename;
         final ObjectMetadata metadata = getObjectMetadata(multipartFile);
 
@@ -51,7 +51,7 @@ public class AmazonS3Service {
 
     }
 
-    public ResponseEntity<byte[]> getObject(Long memberId, String storedFileName)
+    public ResponseEntity<byte[]> getObject(String memberId, String storedFileName)
             throws IOException {
         final String directory = memberId.toString() + "/";
         String s3FileName = directory + storedFileName;
@@ -92,9 +92,9 @@ public class AmazonS3Service {
     }
 
 
-    public String getPresignedUrl(Long memberId, String storedFileName) {
+    public String getPresignedUrl(String memberId, String storedFileName) {
         // 멤버별 디렉토리와 파일 이름 설정
-        final String directory = memberId.toString() + "/";
+        final String directory = memberId + "/";
         final String s3FileName = directory + storedFileName;
 
         // Pre-signed URL 생성 요청 생성
@@ -138,9 +138,9 @@ public class AmazonS3Service {
     }
 
 
-    public List<String> listFiles(Long memberId) {
+    public List<String> listFiles(String memberId) {
         List<String> files = new ArrayList<>();
-        final String directory = memberId.toString() + "/";
+        final String directory = memberId + "/";
 
         // 객체들을 나열하는 요청 생성
         ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucket).withPrefix(directory);
