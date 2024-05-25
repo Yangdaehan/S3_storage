@@ -138,5 +138,29 @@ public class AmazonS3Service {
     }
 
 
+    public List<String> listFiles(Long memberId) {
+        List<String> files = new ArrayList<>();
+        final String directory = memberId.toString() + "/";
+
+        // 객체들을 나열하는 요청 생성
+        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucket).withPrefix(directory);
+
+        // 객체들을 나열하고 파일들을 추출하여 리스트에 추가
+        ListObjectsV2Result result;
+        do {
+            result = amazonS3Client.listObjectsV2(request);
+            for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
+                // 폴더 이름 자체는 포함하지 않도록 필터링
+                if (!objectSummary.getKey().equals(directory)) {
+                    files.add(objectSummary.getKey().substring(directory.length()));
+                }
+            }
+            request.setContinuationToken(result.getNextContinuationToken());
+        } while (result.isTruncated());
+
+        return files;
+    }
+
+
 }
 

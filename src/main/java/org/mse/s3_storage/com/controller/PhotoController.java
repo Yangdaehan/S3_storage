@@ -66,4 +66,12 @@ public class PhotoController {
     public List<String> list() {
         return s3Service.listFolders();
     }
+
+
+    // 특정 멤버의 파일 목록 반환
+    @GetMapping("/{memberId}/list")
+    public ResponseEntity<List<String>> listFiles(@PathVariable Long memberId) {
+        List<String> files = s3Service.listFiles(memberId);
+        return ResponseEntity.ok().body(files);
+    }
 }
