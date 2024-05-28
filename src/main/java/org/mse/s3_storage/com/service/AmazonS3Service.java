@@ -110,25 +110,35 @@ public class AmazonS3Service {
         return folders;
     }
 
-    public List<String> listFiles(String memberId, String subfolder) {
-        List<String> files = new ArrayList<>();
-        final String directory = memberId + (subfolder != null ? "/" + subfolder : "") + "/";
-        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucket).withPrefix(directory);
+    public List<String> listFiles(String path) {
+        List<String> items = new ArrayList<>();
+        final String directory = path.endsWith("/") ? path : path + "/";
 
+        // 객체들을 나열하는 요청 생성
+        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucket).withPrefix(directory).withDelimiter("/");
+
+        // 객체들을 나열하고 파일들과 폴더들을 추출하여 리스트에 추가
         ListObjectsV2Result result;
         do {
             result = amazonS3Client.listObjectsV2(request);
+
+            // 폴더 추가
+            for (String commonPrefix : result.getCommonPrefixes()) {
+                items.add(commonPrefix.substring(directory.length(), commonPrefix.length() - 1));
+            }
+
+            // 파일 추가
             for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
-                if (!objectSummary.getKey().equals(directory)) {
-                    files.add(objectSummary.getKey().substring(directory.length()));
+                // 폴더 이름 자체는 포함하지 않도록 필터링
+                if (!objectSummary.getKey().equals(directory) && !objectSummary.getKey().endsWith("/")) {
+                    items.add(objectSummary.getKey().substring(directory.length()));
                 }
             }
             request.setContinuationToken(result.getNextContinuationToken());
         } while (result.isTruncated());
 
-        return files;
+        return items;
     }
-
 
 
     }

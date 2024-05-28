@@ -115,7 +115,7 @@ public class PhotoController {
 
     @GetMapping("/{memberId}/list")
     public ResponseEntity<List<String>> listFiles(@PathVariable String memberId) {
-        List<String> files = s3Service.listFiles(memberId, null);
+        List<String> files = s3Service.listFiles(memberId);
         return ResponseEntity.ok().body(files);
     }
 
@@ -123,7 +123,8 @@ public class PhotoController {
     public ResponseEntity<List<String>> listFilesInSubfolder(
         @PathVariable String memberId,
         @PathVariable String subfolder) {
-        List<String> files = s3Service.listFiles(memberId, subfolder);
+        String path = memberId + "/" + subfolder;
+        List<String> files = s3Service.listFiles(path);
         return ResponseEntity.ok().body(files);
     }
 
