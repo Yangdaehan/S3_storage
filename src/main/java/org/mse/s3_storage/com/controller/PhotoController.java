@@ -2,6 +2,7 @@ package org.mse.s3_storage.com.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 import org.mse.s3_storage.com.service.AmazonS3Service;
@@ -25,7 +26,7 @@ public class PhotoController {
         @Valid @RequestPart("profile_photo") MultipartFile multipartFile) {
         final String profilePhotoUrl = s3Service.uploadPhoto(memberId,null, multipartFile);
 
-        return ResponseEntity.ok().body(profilePhotoUrl);
+        return ResponseEntity.ok().body("Photo uploaded successfully");
     }
 
     // memberId 폴더에 여러 파일 저장
@@ -39,7 +40,7 @@ public class PhotoController {
             final String profilePhotoUrl = s3Service.uploadPhoto(memberId, null,file);
             profilePhotoUrls.add(profilePhotoUrl);
         }
-        return ResponseEntity.ok().body(profilePhotoUrls);
+        return ResponseEntity.ok().body(Collections.singletonList("Photos uploaded successfully"));
     }
 
     // memberId 폴더에 하위 폴더 생성 후 파일 저장
@@ -51,7 +52,7 @@ public class PhotoController {
     )
     {
         final String profilePhotoUrl = s3Service.uploadPhoto(memberId, subfolder, multipartFile);
-        return ResponseEntity.ok().body(profilePhotoUrl);
+        return ResponseEntity.ok().body("Photo uploaded successfully to subfolder");
     }
 
     // memberId 폴더에 하위 폴더 생성 후 파일 저장
@@ -65,7 +66,8 @@ public class PhotoController {
             final String profilePhotoUrl = s3Service.uploadPhoto(memberId, subfolder, file);
             profilePhotoUrls.add(profilePhotoUrl);
         }
-        return ResponseEntity.ok().body(profilePhotoUrls);
+        return ResponseEntity.ok().body(
+            Collections.singletonList("Photos uploaded successfully to subfolder"));
     }
 
     // memberId 폴더에 있는 엑셀 다운 받기
