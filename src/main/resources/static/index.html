@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Display</title>
 </head>
 <body>
-$END$
+<h1>Your URL</h1>
+<p id="user-url"></p>
+
+<script>
+  // 현재 페이지의 URL을 가져와서 표시
+  document.getElementById('user-url').innerText = window.location.href;
+</script>
 </body>
 </html>
