@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
+
+import org.mse.s3_storage.com.dto.MemberRequest;
 import org.mse.s3_storage.com.service.AmazonS3Service;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,14 +22,16 @@ public class PhotoController {
         this.s3Service = s3Service;
     }
 
-    // memberId 폴더에 photo 저장
-    @PostMapping("/{memberId}/photo")
-    public ResponseEntity<String> profilePhotoUploadAndUpdate(
-        @PathVariable String memberId,
-        @Valid @RequestPart("profile_photo") MultipartFile multipartFile) {
-        final String profilePhotoUrl = s3Service.uploadPhoto(memberId,null, multipartFile);
 
-        return ResponseEntity.ok().body("Photo uploaded successfully");
+    @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> profilePhotoUploadAndUpdate(
+            @RequestPart("profile_photo") MultipartFile multipartFile,
+            @RequestPart("memberRequest") @Valid MemberRequest memberRequest) {
+
+        String memberId = memberRequest.getMemberId();
+        final String profilePhotoUrl = s3Service.uploadPhoto(memberId, null, multipartFile);
+
+        return ResponseEntity.ok().body("Photo uploaded successfully: ");
     }
 
     // memberId 폴더에 여러 파일 저장
