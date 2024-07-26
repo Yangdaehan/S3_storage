@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.mse.s3_storage.com.dto.MemberRequest;
+import org.mse.s3_storage.com.dto.SubfolderRequest;
 import org.mse.s3_storage.com.service.AmazonS3Service;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +36,13 @@ public class PhotoController {
     }
 
     // memberId 폴더에 여러 파일 저장
-    @PostMapping("/{memberId}/photos")
+    @PostMapping(value = "/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<String>> profilePhotosUploadAndUpdate(
-        @PathVariable String memberId,
+        @RequestPart("memeberRequest") @Valid MemberRequest memberRequest,
         @RequestPart("profile_photos")
         List<MultipartFile> files) {
+
+        String memberId = memberRequest.getMemberId();
         List<String> profilePhotoUrls = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
             final String profilePhotoUrl = s3Service.uploadPhoto(memberId, null,file);
@@ -49,26 +52,31 @@ public class PhotoController {
     }
 
     // memberId 폴더에 하위 폴더 생성 후 파일 저장
-    @PostMapping("/{memberId}/{subfolder}/photo")
+    @PostMapping("/photo-sub")
     public ResponseEntity<String> profilePhotoUploadAndUpdate(
-        @PathVariable String memberId,
-        @PathVariable String subfolder,
+        @RequestPart("memberRequest")MemberRequest memberRequest,
+        @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
         @Valid @RequestPart("profile_photo") MultipartFile multipartFile
     )
     {
-        final String profilePhotoUrl = s3Service.uploadPhoto(memberId, subfolder, multipartFile);
+        String memberId = memberRequest.getMemberId();
+        String subfolderName = subfolderRequest.getSubfolderName();
+        final String profilePhotoUrl = s3Service.uploadPhoto(memberId, subfolderName, multipartFile);
         return ResponseEntity.ok().body("Photo uploaded successfully to subfolder");
     }
 
     // memberId 폴더에 하위 폴더 생성 후 파일 저장
-    @PostMapping("/{memberId}/{subfolder}/photos")
+    @PostMapping("/photos-sub")
     public ResponseEntity<List<String>> profilePhotosUploadAndUpdate(
-        @PathVariable String memberId,
-        @PathVariable String subfolder,
-        @RequestPart("profile_photos") List<MultipartFile> files) {
+            @RequestPart("memberRequest")MemberRequest memberRequest,
+            @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
+            @Valid @RequestPart("profile_photo") List<MultipartFile> files) {
+
+        String memberId = memberRequest.getMemberId();
+        String subfolderName = subfolderRequest.getSubfolderName();
         List<String> profilePhotoUrls = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
-            final String profilePhotoUrl = s3Service.uploadPhoto(memberId, subfolder, file);
+            final String profilePhotoUrl = s3Service.uploadPhoto(memberId, subfolderName, file);
             profilePhotoUrls.add(profilePhotoUrl);
         }
         return ResponseEntity.ok().body(

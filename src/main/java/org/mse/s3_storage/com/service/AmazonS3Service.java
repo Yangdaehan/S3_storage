@@ -30,9 +30,9 @@ public class AmazonS3Service {
         this.amazonS3Client = amazonS3Client;
     }
 
-        public String uploadPhoto(String memberId, String subfolder, MultipartFile multipartFile) {
+        public String uploadPhoto(String memberId, String subfolderName, MultipartFile multipartFile) {
             final String originalFilename = multipartFile.getOriginalFilename();
-            final String directory = memberId + (subfolder != null ? "/" + subfolder : "") + "/";
+            final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
             final String s3Filename = directory + originalFilename;
             final ObjectMetadata metadata = getObjectMetadata(multipartFile);
 
@@ -47,8 +47,8 @@ public class AmazonS3Service {
             }
         }
 
-        public ResponseEntity<byte[]> getObject(String memberId, String subfolder, String storedFileName) throws IOException {
-            final String directory = memberId + (subfolder != null ? "/" + subfolder : "") + "/";
+        public ResponseEntity<byte[]> getObject(String memberId, String subfolderName, String storedFileName) throws IOException {
+            final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
             String s3FileName = directory + storedFileName;
             S3Object o = amazonS3Client.getObject(new GetObjectRequest(bucket, s3FileName));
             S3ObjectInputStream objectInputStream = o.getObjectContent();
@@ -77,8 +77,8 @@ public class AmazonS3Service {
             return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
         }
 
-        public String getPresignedUrl(String memberId, String subfolder, String storedFileName) {
-            final String directory = memberId + (subfolder != null ? "/" + subfolder : "") + "/";
+        public String getPresignedUrl(String memberId, String subfolderName, String storedFileName) {
+            final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
             final String s3FileName = directory + storedFileName;
 
             GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, s3FileName);
