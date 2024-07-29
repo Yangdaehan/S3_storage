@@ -25,24 +25,6 @@ public class S3Controller {
 
 
     // 파일 업로드
-    @PostMapping(value = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadFile(
-            @RequestPart("file") MultipartFile multipartFile,
-            @RequestPart("memberRequest") @Valid MemberRequest memberRequest,
-
-            //하위 폴더가 제공될 경우 하위 폴더에 파일을 업로드
-            @RequestPart(value = "subfolderRequest", required = false) SubfolderRequest subfolderRequest
-    ) {
-        try {
-            String memberId = memberRequest.getMemberId();
-            String subfolderName = (subfolderRequest != null) ? subfolderRequest.getSubfolderName() : null;
-            final String profilePhotoUrl = s3Service.uploadFile(memberId, subfolderName, multipartFile);
-            return ResponseEntity.ok().body("File uploaded successfully" + (subfolderName != null ? " to subfolder: " + subfolderName : ""));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading photo: " + e.getMessage());
-        }
-    }
-
     @PostMapping(value = "/uploadFiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<String>> uploadFiles(
             @RequestPart("memberRequest") @Valid MemberRequest memberRequest,
