@@ -68,8 +68,8 @@ public class S3Controller {
 
 
     //파일 다운로드
-    @GetMapping("/fileDownload")
-    public ResponseEntity<String> fileDownload(
+    @GetMapping("/downloadFile")
+    public ResponseEntity<String> downloadFile(
             @RequestPart("fileName") String storedFileName,
             @RequestPart("memberRequest") MemberRequest memberRequest,
 
@@ -86,8 +86,8 @@ public class S3Controller {
         }
     }
 
-    @GetMapping("/binaryFileDownload")
-    public ResponseEntity<byte[]> binaryFileDownload(
+    @GetMapping("/downloadBinaryFile")
+    public ResponseEntity<byte[]> downloadBinaryFile(
             @RequestPart("fileName") String storedFileName,
             @RequestPart("memberRequest") MemberRequest memberRequest,
 
@@ -136,7 +136,7 @@ public class S3Controller {
 
 
     //파일 삭제
-    @DeleteMapping("/file_delete")
+    @DeleteMapping("/deleteFile")
     public ResponseEntity<String> deleteFile(
             @RequestPart("memberRequest") MemberRequest memberRequest,
             @RequestPart(value = "subfolderRequest", required = false) SubfolderRequest subfolderRequest,
@@ -152,7 +152,7 @@ public class S3Controller {
         }
     }
 
-    @DeleteMapping("/delete-folder")
+    @DeleteMapping("/deleteFolder")
     public ResponseEntity<String> deleteFolder(
             @RequestPart("memberRequest") MemberRequest memberRequest,
             @RequestPart(value = "subfolderRequest", required = false) SubfolderRequest subfolderRequest
