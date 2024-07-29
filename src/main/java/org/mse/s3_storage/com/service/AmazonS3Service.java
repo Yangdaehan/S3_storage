@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
+
 
 @Service
 public class AmazonS3Service {
@@ -140,7 +142,7 @@ public class AmazonS3Service {
         return items;
     }
 
-    //삭제 기능
+    // 파일 삭제 기능
     public void deleteFile(String memberId, String subfolderName, String fileName) {
         String key = memberId;
         if (subfolderName != null && !subfolderName.isEmpty()) {
@@ -148,6 +150,36 @@ public class AmazonS3Service {
         }
         key += "/" + fileName;
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, key));
+    }
+
+    // 폴더 삭제
+    public void deleteFolder(String memberId, String subfolderName) {
+        // S3의 폴더 키를 생성
+        String prefix = memberId;
+        if (subfolderName != null && !subfolderName.isEmpty()) {
+            prefix += "/" + subfolderName + "/";
+        } else {
+            prefix += "/";
+        }
+        // 삭제할 객체들을 재귀적으로 삭제
+        deleteObjectsRecursively(prefix);
+    }
+
+    private void deleteObjectsRecursively(String prefix) {
+        ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(prefix);
+
+        ListObjectsV2Result result;
+        do {
+            result = amazonS3Client.listObjectsV2(listObjectsRequest);
+
+            for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
+                amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, objectSummary.getKey()));
+            }
+
+            listObjectsRequest.setContinuationToken(result.getNextContinuationToken());
+        } while (result.isTruncated());
     }
 
 

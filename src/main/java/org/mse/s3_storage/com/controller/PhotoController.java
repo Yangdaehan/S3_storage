@@ -193,5 +193,22 @@ public class PhotoController {
         }
     }
 
+    @DeleteMapping("/delete-folder")
+    public ResponseEntity<String> deleteFolder(
+            @RequestPart("memberRequest") MemberRequest memberRequest,
+            @RequestPart(value = "subfolderRequest", required = false) SubfolderRequest subfolderRequest) {
+        try {
+            String memberId = memberRequest.getMemberId();
+            String subfolderName = (subfolderRequest != null) ? subfolderRequest.getSubfolderName() : null;
+
+            s3Service.deleteFolder(memberId, subfolderName);
+
+            return ResponseEntity.ok("Folder and its contents deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting folder: " + e.getMessage());
+        }
+    }
+
 
 }
