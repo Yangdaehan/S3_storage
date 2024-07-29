@@ -140,6 +140,16 @@ public class AmazonS3Service {
         return items;
     }
 
+    //삭제 기능
+    public void deleteFile(String memberId, String subfolderName, String fileName) {
+        String key = memberId;
+        if (subfolderName != null && !subfolderName.isEmpty()) {
+            key += "/" + subfolderName;
+        }
+        key += "/" + fileName;
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, key));
+    }
+
 
     }
 

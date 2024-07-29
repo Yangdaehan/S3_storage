@@ -91,7 +91,7 @@ public class PhotoController {
 
     @GetMapping("/xlsx_download")
     public ResponseEntity<String> xlsx_download(
-            @RequestPart("Filename") String storedFileName,
+            @RequestPart("fileName") String storedFileName,
             @RequestPart("memberRequest") MemberRequest memberRequest) {
         try {
             String memberId = memberRequest.getMemberId();
@@ -108,7 +108,7 @@ public class PhotoController {
     public ResponseEntity<String> xlsx_download(
             @RequestPart("memberRequest") MemberRequest memberRequest,
             @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
-            @RequestPart("Filename") String storedFileName) {
+            @RequestPart("fileName") String storedFileName) {
         try {
             String memberId = memberRequest.getMemberId();
             String subfolderName = subfolderRequest.getSubfolderName();
@@ -121,7 +121,7 @@ public class PhotoController {
 
     @GetMapping("/image_download")
     public ResponseEntity<byte[]> photoDownload(
-            @RequestPart("Filename") String storedFileName,
+            @RequestPart("fileName") String storedFileName,
             @RequestPart("memberRequest") MemberRequest memberRequest) {
         try {
             String memberId = memberRequest.getMemberId();
@@ -135,7 +135,7 @@ public class PhotoController {
     public ResponseEntity<byte[]> photoDownload(
             @RequestPart("memberRequest") MemberRequest memberRequest,
             @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
-            @RequestPart("Filename") String storedFileName) {
+            @RequestPart("fileName") String storedFileName) {
         try {
             String memberId = memberRequest.getMemberId();
             String subfolderName = subfolderRequest.getSubfolderName();
@@ -176,4 +176,22 @@ public class PhotoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonList("Error listing files in subfolder: " + e.getMessage()));
         }
     }
+
+    @DeleteMapping("/file_delete")
+    public ResponseEntity<String> deleteFile(
+            @RequestPart("memberRequest") MemberRequest memberRequest,
+            @RequestPart(value = "subfolderRequest", required = false) SubfolderRequest subfolderRequest,
+            @RequestPart("fileName") String fileName
+    ) {
+        try {
+            String memberId = memberRequest.getMemberId();
+            String subfolderName = (subfolderRequest != null) ? subfolderRequest.getSubfolderName() : null;
+            s3Service.deleteFile(memberId, subfolderName, fileName);
+            return ResponseEntity.ok("File deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting file: " + e.getMessage());
+        }
+    }
+
+
 }
