@@ -32,64 +32,64 @@ public class AmazonS3Service {
         this.amazonS3Client = amazonS3Client;
     }
 
-        public String uploadPhoto(String memberId, String subfolderName, MultipartFile multipartFile) {
-            final String originalFilename = multipartFile.getOriginalFilename();
-            final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
-            final String s3Filename = directory + originalFilename;
-            final ObjectMetadata metadata = getObjectMetadata(multipartFile);
+    public String uploadFile(String memberId, String subfolderName, MultipartFile multipartFile) {
+        final String originalFilename = multipartFile.getOriginalFilename();
+        final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
+        final String s3Filename = directory + originalFilename;
+        final ObjectMetadata metadata = getObjectMetadata(multipartFile);
 
-            try {
-                if (!amazonS3Client.doesObjectExist(bucket, directory)) {
-                    amazonS3Client.putObject(bucket, directory, "");
-                }
-                amazonS3Client.putObject(bucket, s3Filename, multipartFile.getInputStream(), metadata);
-                return amazonS3Client.getUrl(bucket, s3Filename).toString();
-            } catch (Exception e) {
-                throw new IllegalArgumentException("S3 picture upload failed");
+        try {
+            if (!amazonS3Client.doesObjectExist(bucket, directory)) {
+                amazonS3Client.putObject(bucket, directory, "");
             }
+            amazonS3Client.putObject(bucket, s3Filename, multipartFile.getInputStream(), metadata);
+            return amazonS3Client.getUrl(bucket, s3Filename).toString();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("S3 picture upload failed");
+        }
+    }
+
+    public ResponseEntity<byte[]> getObject(String memberId, String subfolderName, String storedFileName) throws IOException {
+        final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
+        String s3FileName = directory + storedFileName;
+        S3Object o = amazonS3Client.getObject(new GetObjectRequest(bucket, s3FileName));
+        S3ObjectInputStream objectInputStream = o.getObjectContent();
+        byte[] bytes = IOUtils.toByteArray(objectInputStream);
+        objectInputStream.close();
+
+        String fileExtension = storedFileName.substring(storedFileName.lastIndexOf(".") + 1);
+        String contentType;
+        if (fileExtension.equalsIgnoreCase("png")) {
+            contentType = "image/png";
+        } else if (fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg")) {
+            contentType = "image/jpeg";
+        } else if (fileExtension.equalsIgnoreCase("xlsx") || fileExtension.equalsIgnoreCase("xls")) {
+            contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        } else {
+            contentType = "application/octet-stream";
         }
 
-        public ResponseEntity<byte[]> getObject(String memberId, String subfolderName, String storedFileName) throws IOException {
-            final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
-            String s3FileName = directory + storedFileName;
-            S3Object o = amazonS3Client.getObject(new GetObjectRequest(bucket, s3FileName));
-            S3ObjectInputStream objectInputStream = o.getObjectContent();
-            byte[] bytes = IOUtils.toByteArray(objectInputStream);
-            objectInputStream.close();
+        String fileName = URLEncoder.encode(storedFileName, "UTF-8").replaceAll("\\+", "%20");
 
-            String fileExtension = storedFileName.substring(storedFileName.lastIndexOf(".") + 1);
-            String contentType;
-            if (fileExtension.equalsIgnoreCase("png")) {
-                contentType = "image/png";
-            } else if (fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg")) {
-                contentType = "image/jpeg";
-            } else if (fileExtension.equalsIgnoreCase("xlsx") || fileExtension.equalsIgnoreCase("xls")) {
-                contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            } else {
-                contentType = "application/octet-stream";
-            }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.parseMediaType(contentType));
+        httpHeaders.setContentLength(bytes.length);
+        httpHeaders.setContentDispositionFormData("attachment", fileName);
 
-            String fileName = URLEncoder.encode(storedFileName, "UTF-8").replaceAll("\\+", "%20");
+        return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
+    }
 
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(MediaType.parseMediaType(contentType));
-            httpHeaders.setContentLength(bytes.length);
-            httpHeaders.setContentDispositionFormData("attachment", fileName);
+    public String getPresignedUrl(String memberId, String subfolderName, String storedFileName) {
+        final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
+        final String s3FileName = directory + storedFileName;
 
-            return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
-        }
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, s3FileName);
+        generatePresignedUrlRequest.setMethod(HttpMethod.GET);
+        generatePresignedUrlRequest.setExpiration(new Date(System.currentTimeMillis() + 3600000));
 
-        public String getPresignedUrl(String memberId, String subfolderName, String storedFileName) {
-            final String directory = memberId + (subfolderName != null ? "/" + subfolderName : "") + "/";
-            final String s3FileName = directory + storedFileName;
-
-            GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, s3FileName);
-            generatePresignedUrlRequest.setMethod(HttpMethod.GET);
-            generatePresignedUrlRequest.setExpiration(new Date(System.currentTimeMillis() + 3600000));
-
-            URL url = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
-            return url.toString();
-        }
+        URL url = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
+        return url.toString();
+    }
 
     private ObjectMetadata getObjectMetadata(MultipartFile multipartFile) {
         final ObjectMetadata metadata = new ObjectMetadata();
@@ -183,5 +183,5 @@ public class AmazonS3Service {
     }
 
 
-    }
+}
 
