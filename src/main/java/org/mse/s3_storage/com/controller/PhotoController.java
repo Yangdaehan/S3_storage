@@ -38,14 +38,14 @@ public class PhotoController {
     // memberId 폴더에 여러 파일 저장
     @PostMapping(value = "/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<String>> profilePhotosUploadAndUpdate(
-        @RequestPart("memeberRequest") @Valid MemberRequest memberRequest,
-        @RequestPart("profile_photos")
-        List<MultipartFile> files) {
+            @RequestPart("memeberRequest") @Valid MemberRequest memberRequest,
+            @RequestPart("profile_photos")
+            List<MultipartFile> files) {
 
         String memberId = memberRequest.getMemberId();
         List<String> profilePhotoUrls = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
-            final String profilePhotoUrl = s3Service.uploadPhoto(memberId, null,file);
+            final String profilePhotoUrl = s3Service.uploadPhoto(memberId, null, file);
             profilePhotoUrls.add(profilePhotoUrl);
         }
         return ResponseEntity.ok().body(Collections.singletonList("Photos uploaded successfully"));
@@ -54,11 +54,10 @@ public class PhotoController {
     // memberId 폴더에 하위 폴더 생성 후 파일 저장
     @PostMapping("/photo-sub")
     public ResponseEntity<String> profilePhotoUploadAndUpdate(
-        @RequestPart("memberRequest")MemberRequest memberRequest,
-        @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
-        @Valid @RequestPart("profile_photo") MultipartFile multipartFile
-    )
-    {
+            @RequestPart("memberRequest") MemberRequest memberRequest,
+            @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
+            @Valid @RequestPart("profile_photo") MultipartFile multipartFile
+    ) {
         String memberId = memberRequest.getMemberId();
         String subfolderName = subfolderRequest.getSubfolderName();
         final String profilePhotoUrl = s3Service.uploadPhoto(memberId, subfolderName, multipartFile);
@@ -68,7 +67,7 @@ public class PhotoController {
     // memberId 폴더에 하위 폴더 생성 후 파일 저장
     @PostMapping("/photos-sub")
     public ResponseEntity<List<String>> profilePhotosUploadAndUpdate(
-            @RequestPart("memberRequest")MemberRequest memberRequest,
+            @RequestPart("memberRequest") MemberRequest memberRequest,
             @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
             @Valid @RequestPart("profile_photo") List<MultipartFile> files) {
 
@@ -80,47 +79,55 @@ public class PhotoController {
             profilePhotoUrls.add(profilePhotoUrl);
         }
         return ResponseEntity.ok().body(
-            Collections.singletonList("Photos uploaded successfully to subfolder"));
+                Collections.singletonList("Photos uploaded successfully to subfolder"));
     }
 
     // memberId 폴더에 있는 엑셀 다운 받기
-    @GetMapping("/{memberId}/{storedFileName}/xlsx_download")
+    @GetMapping("/xlsx_download")
     public String xlsx_download(
-        @PathVariable String storedFileName,
-        @PathVariable String memberId
+            @RequestPart("Filename") String storedFileName,
+            @RequestPart("memberRequest") MemberRequest memberRequest
     ) throws IOException {
-
-        return s3Service.getPresignedUrl(memberId,null, storedFileName);
+        String memberId = memberRequest.getMemberId();
+        System.out.println(memberId);
+        System.out.println(storedFileName);
+        return s3Service.getPresignedUrl(memberId, null, storedFileName);
     }
 
     // memberId 폴더 내 하위 폴더에 있는 엑셀 다운 받기
-    @GetMapping("/{memberId}/{subfolder}/{storedFileName}/xlsx_download")
+    @GetMapping("/xlsx_download-sub")
     public String xlsx_download(
-        @PathVariable String memberId,
-        @PathVariable String subfolder,
-        @PathVariable String storedFileName
+            @RequestPart("memberRequest") MemberRequest memberRequest,
+            @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
+            @RequestPart("Filename") String storedFileName
     ) throws IOException {
-        return s3Service.getPresignedUrl(memberId, subfolder, storedFileName);
+
+        String memberId = memberRequest.getMemberId();
+        String subfolderName = subfolderRequest.getSubfolderName();
+        return s3Service.getPresignedUrl(memberId, subfolderName, storedFileName);
     }
 
     // memberId 폴더에 있는 파일을 바이너리 파일로 전송
-    @GetMapping("/{memberId}/{storedFileName}/image_download")
+    @GetMapping("/image_download")
     public ResponseEntity<byte[]> photoDownload(
-        @PathVariable String storedFileName,
-        @PathVariable String memberId
+            @RequestPart("Filename") String storedFileName,
+            @RequestPart("memberRequest") MemberRequest memberRequest
     ) throws IOException {
 
-        return s3Service.getObject(memberId,null, storedFileName);
+        String memberId = memberRequest.getMemberId();
+        return s3Service.getObject(memberId, null, storedFileName);
     }
 
     // memberId 폴더 내부에 하위 폴더 안에 있는 파일을 바이너리 파일로 전송
-    @GetMapping("/{memberId}/{subfolder}/{storedFileName}/image_download")
+    @GetMapping("/image_download-sub")
     public ResponseEntity<byte[]> photoDownload(
-        @PathVariable String memberId,
-        @PathVariable String subfolder,
-        @PathVariable String storedFileName
+            @RequestPart("memberRequest") MemberRequest memberRequest,
+            @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest,
+            @RequestPart("Filename") String storedFileName
     ) throws IOException {
-        return s3Service.getObject(memberId, subfolder, storedFileName);
+        String memberId = memberRequest.getMemberId();
+        String subfolderName = subfolderRequest.getSubfolderName();
+        return s3Service.getObject(memberId, subfolderName, storedFileName);
     }
 
     @GetMapping("/list")
@@ -128,17 +135,23 @@ public class PhotoController {
         return s3Service.listFolders();
     }
 
-    @GetMapping("/{memberId}/list")
-    public ResponseEntity<List<String>> listFiles(@PathVariable String memberId) {
+    @GetMapping("/memberList")
+    public ResponseEntity<List<String>> listFiles(
+            @RequestPart("memberRequest") MemberRequest memberRequest
+    ) {
+        String memberId = memberRequest.getMemberId();
         List<String> files = s3Service.listFiles(memberId);
         return ResponseEntity.ok().body(files);
     }
 
-    @GetMapping("/{memberId}/{subfolder}/list")
+    @GetMapping("/subList")
     public ResponseEntity<List<String>> listFilesInSubfolder(
-        @PathVariable String memberId,
-        @PathVariable String subfolder) {
-        String path = memberId + "/" + subfolder;
+            @RequestPart("memberRequest") MemberRequest memberRequest,
+            @RequestPart("subfolderRequest") SubfolderRequest subfolderRequest
+    ) {
+        String memberId = memberRequest.getMemberId();
+        String subfolderName = subfolderRequest.getSubfolderName();
+        String path = memberId + "/" + subfolderName;
         List<String> files = s3Service.listFiles(path);
         return ResponseEntity.ok().body(files);
     }
