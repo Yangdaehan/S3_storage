@@ -1,6 +1,5 @@
 package org.mse.s3_storage.com.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-public class PhotoController {
+public class S3Controller {
 
     private final AmazonS3Service s3Service;
 
-    public PhotoController(AmazonS3Service s3Service) {
+    public S3Controller(AmazonS3Service s3Service) {
         this.s3Service = s3Service;
     }
 
