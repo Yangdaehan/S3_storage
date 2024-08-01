@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 
-import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiOperation;
 import org.mse.s3_storage.com.dto.MemberRequest;
 import org.mse.s3_storage.com.dto.SubfolderRequest;
 import org.mse.s3_storage.com.service.AmazonS3Service;
@@ -25,7 +25,7 @@ public class S3Controller {
     }
 
     // 파일 업로드
-    @ApiOperation(value = "파일 업로드 api", notes = "파일을 업로드하는 api입니다. 하위폴더가 제공될 경우 해당 하위폴더를 만든 후 파일을 업로드 합니다.")
+    //@ApiOperation(value = "파일 업로드 api", notes = "파일을 업로드하는 api입니다. 하위폴더가 제공될 경우 해당 하위폴더를 만든 후 파일을 업로드 합니다.")
     @PostMapping(value = "/uploadFiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<String>> uploadFiles(
             @RequestPart("memberRequest") @Valid MemberRequest memberRequest,
@@ -51,7 +51,7 @@ public class S3Controller {
 
 
     //파일 다운로드
-    @ApiOperation( value = "파일 다운로드 API", notes = "파일을 다운로드 받은 API입니다. 하위폴더가 제공될 경우 하위폴더 안의 파일을 다운받습니다.")
+   // @ApiOperation( value = "파일 다운로드 API", notes = "파일을 다운로드 받은 API입니다. 하위폴더가 제공될 경우 하위폴더 안의 파일을 다운받습니다.")
     @GetMapping("/downloadFile")
     public ResponseEntity<String> downloadFile(
             @RequestPart("fileName") String storedFileName,
@@ -71,7 +71,7 @@ public class S3Controller {
     }
 
 
-    @ApiOperation(value = "바이너리 형태로 파일 다운로드", notes = "바이너리 형태로 파일을 다운받습니다. 따라서 이미지 형태의 경우 바로 출력됩니다.")
+    //@ApiOperation(value = "바이너리 형태로 파일 다운로드", notes = "바이너리 형태로 파일을 다운받습니다. 따라서 이미지 형태의 경우 바로 출력됩니다.")
     @GetMapping("/downloadBinaryFile")
     public ResponseEntity<byte[]> downloadBinaryFile(
             @RequestPart("fileName") String storedFileName,
@@ -91,7 +91,7 @@ public class S3Controller {
 
 
     //조회
-    @ApiOperation(value = "리스트 조회 API", notes = "리스트를 조회하는데 하위 폴더가 제공될 경우 폴더 안의 리스트를 조회합니다.")
+   // @ApiOperation(value = "리스트 조회 API", notes = "리스트를 조회하는데 하위 폴더가 제공될 경우 폴더 안의 리스트를 조회합니다.")
     @GetMapping("/list")
     public ResponseEntity<List<String>> listFiles(
             @RequestPart(value = "memberRequest", required = false) MemberRequest memberRequest,
@@ -123,7 +123,7 @@ public class S3Controller {
 
 
     //파일 삭제
-    @ApiOperation(value = "파일을 삭제하는 API",notes = "해당 파일을 삭제합니다." )
+    //@ApiOperation(value = "파일을 삭제하는 API",notes = "해당 파일을 삭제합니다." )
     @DeleteMapping("/deleteFile")
     public ResponseEntity<String> deleteFile(
             @RequestPart("memberRequest") MemberRequest memberRequest,
@@ -141,7 +141,7 @@ public class S3Controller {
     }
 
 
-    @ApiOperation(value = "폴더를 삭제하는 API", notes = "해당 폴더를 삭제하여 폴더 안 파일까지 모두 삭제하는 기능입니다.")
+    //@ApiOperation(value = "폴더를 삭제하는 API", notes = "해당 폴더를 삭제하여 폴더 안 파일까지 모두 삭제하는 기능입니다.")
     @DeleteMapping("/deleteFolder")
     public ResponseEntity<String> deleteFolder(
             @RequestPart("memberRequest") MemberRequest memberRequest,

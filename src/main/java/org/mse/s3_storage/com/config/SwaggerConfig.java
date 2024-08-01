@@ -1,4 +1,6 @@
+/*
 package org.mse.s3_storage.com.config;
+
 
 
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
@@ -64,3 +66,6 @@ public class SwaggerConfig implements WebMvcConfigurer {
 
     }
 }
+
+
+ */
