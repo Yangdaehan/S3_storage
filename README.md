@@ -1,6 +1,7 @@
 # S3_storage
 AWS S3 storage을 관리하는 API 입니다.
- 
+ ![SSI_20180914171905_O2](https://github.com/user-attachments/assets/c3cdc9b7-9061-4dc6-9eb9-97158a6b6e98)
+
  &nbsp;
  
 ## 📋 구현 기능 명세
